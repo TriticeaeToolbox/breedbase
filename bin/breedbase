@@ -197,7 +197,7 @@ log() {
     if [[ "$1" == "db" ]]; then
         "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" logs -f "$DOCKER_DB_SERVICE"
     else
-        "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$1" tail -f /var/log/sgn/error.log
+        "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" logs -f "$1"
     fi
 }
 
