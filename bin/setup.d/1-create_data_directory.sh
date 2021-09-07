@@ -6,7 +6,6 @@
 # $BB_HOME/postgresql/data
 #
 
-BB_HOME="$1"
 BB_DATA_DIR="$BB_HOME/postgresql/data"
 
 

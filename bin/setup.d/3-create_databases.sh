@@ -6,7 +6,6 @@
 # The database name will be pulled from the service config file
 #
 
-BB_HOME="$1"
 BREEDBASE="$BB_HOME/bin/breedbase"
 DOCKER_COMPOSE_FILE="$BB_HOME/docker-compose.yml"
 BB_CONFIG_DIR="$BB_HOME/config/"

@@ -6,7 +6,6 @@
 # It will then prompt the user to wait unti the database setup has finished
 #
 
-BB_HOME="$1"
 BREEDBASE="$BB_HOME/bin/breedbase"
 
 

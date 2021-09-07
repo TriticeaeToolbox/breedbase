@@ -6,7 +6,6 @@
 # - update the password and email of the account
 #
 
-BB_HOME="$1"
 DOCKER_COMPOSE_FILE="$BB_HOME/docker-compose.yml"
 BB_CONFIG_DIR="$BB_HOME/config/"
 

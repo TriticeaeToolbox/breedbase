@@ -7,7 +7,6 @@
 # It will also update the web_usr passwords in the config files
 #
 
-BB_HOME="$1"
 BB_CONFIG_DIR="$BB_HOME/config/"
 DOCKER_COMPOSE_FILE="$BB_HOME/docker-compose.yml"
 
@@ -70,3 +69,9 @@ for config in "$BB_CONFIG_DIR/"*.conf; do
     conf=$(sed "s/^dbpass .*/dbpass $webusr_pass     # The password for the database user/g" $config)
     echo "$conf" > $config
 done
+
+# Update the docker compose file
+echo ""
+echo "==> Removing the postgres password from the docker-compose.yml file..."
+comp=$(sed -E "s/(.*)POSTGRES_PASSWORD:.*/\1POSTGRES_PASSWORD:/g" $DOCKER_COMPOSE_FILE)
+echo "$comp" > $DOCKER_COMPOSE_FILE

@@ -6,8 +6,6 @@
 # each of the web instances
 #
 
-BB_HOME="$1"
-
 "$BB_HOME/bin/update" --setup
 
 exit 0
