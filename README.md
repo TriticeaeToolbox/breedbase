@@ -86,10 +86,10 @@ breedbase start
 breedbase stop
 ```
 
-To start the website for a single crop, start the database and the web service for that crop:
+To start the website for a single crop, specify the name of the service:
 ```
-breedbase start db triticum
-breedbase stop db triticum
+breedbase start triticum    # starts database (if not already running) and web service
+breedbase stop triticum     # stops the web service
 ```
 
 To get the status of which services are running:

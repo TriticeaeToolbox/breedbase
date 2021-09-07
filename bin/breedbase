@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 #
 # BREEDBASE
@@ -71,6 +71,7 @@ USAGE=$(cat <<-END
                                                         The user can be specified by username or email
     patch <triticum|avena|hordeum|...> [patch]      Run the specified DB patch (or all patches) on the database of the specified service 
     pull [triticum|avena|hordeum|...]               Pull the latest code from the sgn and mason repos (for the specified service)
+    psql [triticum|avena|hordeum|...]               Start a postgres interactive terminal, optionally connect to the database of the specified service
 END
 )
 
@@ -304,6 +305,9 @@ case "$1" in
         ;;
     "pull")
         utils pull $args
+        ;;
+    "psql")
+        utils psql $args
         ;;
     *)
         echo "$USAGE"
