@@ -1,5 +1,3 @@
--- pg_dump -s -h localhost -U postgres -d {db_name} | grep "^GRANT.*TO web_usr"
-
 GRANT USAGE ON SCHEMA annotation TO web_usr;
 GRANT USAGE ON SCHEMA biosource TO web_usr;
 GRANT USAGE ON SCHEMA gem TO web_usr;
