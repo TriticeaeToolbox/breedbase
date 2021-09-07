@@ -237,7 +237,7 @@ GRANT SELECT,UPDATE ON SEQUENCE phenome.cross_type_cross_type_id_seq TO web_usr;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE phenome.cvterm_pub_ranking TO web_usr;
 GRANT SELECT ON TABLE phenome.dbxref_type TO web_usr;
 GRANT ALL ON SEQUENCE phenome.dbxref_type_dbxref_type_id_seq TO web_usr;
-GRANT SELECT,INSERT,UPDATE ON TABLE phenome.genotype TO web_usr;
+GRANT SELECT,INSERT,UPDATE ON TABLE phenome.phenome_genotype TO web_usr;
 GRANT SELECT,INSERT,UPDATE ON TABLE phenome.genotype_experiment TO web_usr;
 GRANT SELECT,UPDATE ON SEQUENCE phenome.genotype_experiment_genotype_experiment_id_seq TO web_usr;
 GRANT SELECT,UPDATE ON SEQUENCE phenome.genotype_genotype_id_seq TO web_usr;
