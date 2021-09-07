@@ -1,0 +1,3 @@
+COPY sgn_people.sp_person (sp_person_id, censor, salutation, last_name, first_name, organization, address, country, phone_number, fax, contact_email, webpage, research_keywords, user_format, research_interests, formatted_interests, contact_update, research_update, sp_login_id, username, private_email, pending_email, password, confirm_code, disabled, user_type, cookie_string, last_access_time, user_prefs, developer_settings) FROM stdin;
+1	0	\N	Admin	Admin	\N	\N	\N	\N	\N	\N	\N	\N	auto	\N	\N	\N	2011-10-10	1	admin	\N	lam87@cornell.edu	$2a$06$099ycLlm9ss1ol8aUs8Lku2rxl2b.fnlWhqo3QRQSmKWpDzlAHEMS	ZuBbhS3w4vQGeItB	\N	user	zqvxxlxofdsulzneubfedisujlcswrzlckmztribdcibenqtjkhsuorcwvjfkyftngruqpo	2017-08-24 12:22:05.979278	\N	\N
+\.

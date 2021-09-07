@@ -1,0 +1,1 @@
+CREATE ROLE web_usr WITH LOGIN;
