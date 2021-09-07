@@ -5,13 +5,11 @@
 # This script will pull the latest code into the sgn and mason repos.
 # If a service name is specified, just update that service, otherwise 
 # update all of the services defined in the docker-compose file.
-#   Arg 1: BB Home directory
-#   Arg 2: (optional) docker-compose service name
+#   Arg 1: (optional) docker-compose service name
 #
 
 # Parse Arguments
-BB_HOME="$1"
-SERVICE="$2"
+SERVICE="$1"
 
 # Set Breedbase Paths
 DOCKER_COMPOSE_FILE="$BB_HOME/docker-compose.yml"

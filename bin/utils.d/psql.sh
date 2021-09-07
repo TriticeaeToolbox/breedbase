@@ -5,13 +5,11 @@
 # This script will start the psql interactive terminal.  If the name 
 # of a web service is provided, it will connect to the database for 
 # the web service that is defined in its sgn.conf file.
-#   Arg 1: BB Home directory
-#   Arg 2: (optional) docker-compose service name
+#   Arg 1: (optional) docker-compose service name
 #
 
 # Parse Arguments
-BB_HOME="$1"
-SERVICE="$2"
+SERVICE="$1"
 
 # Set Breedbase Paths
 DOCKER_COMPOSE_FILE="$BB_HOME/docker-compose.yml"

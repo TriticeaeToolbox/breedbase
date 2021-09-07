@@ -43,4 +43,4 @@ fi
 
 
 # Call the script
-$(which bash) "$SCRIPT" "$BB_HOME" $ARGS
+BB_HOME="$BB_HOME" BB_DOCKER_DB_SERVICE="$BB_DOCKER_DB_SERVICE" $(which bash) "$SCRIPT" $ARGS

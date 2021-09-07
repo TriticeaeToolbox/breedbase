@@ -260,7 +260,7 @@ update() {
 #   ... - additional arguments passed to the utility script
 ########
 utils() {
-    "$BB_UTILS" "$1" "${@:2}"
+    BB_DOCKER_DB_SERVICE="$DOCKER_DB_SERVICE" "$BB_UTILS" "$1" "${@:2}"
 }
 
 
@@ -298,7 +298,7 @@ case "$1" in
         update $args
         ;;
     "confirm")
-        utils confirm $DOCKER_DB_SERVICE $args
+        utils confirm $args
         ;;
     "patch")
         utils patch $args
