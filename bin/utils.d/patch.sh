@@ -18,10 +18,6 @@ if [ -z "$SERVICE" ]; then
     echo "ERROR: The service name must be provided!"
     exit 1
 fi
-if [ -z "$PATCH" ]; then
-    echo "ERROR: The database patch number must be provided!"
-    exit 1
-fi
 
 # Set Breedbase Paths
 BB_CONFIG_DIR="$BB_HOME/config"
@@ -34,6 +30,7 @@ DOCKER="$(which docker)"
 
 
 # Get database name from config file
+db_host=$(cat "$BB_CONFIG" | grep ^dbhost | tr -s ' ' | cut -d ' ' -f 2)
 db=$(cat "$BB_CONFIG" | grep ^dbname | tr -s ' ' | cut -d ' ' -f 2)
 
 # Get container name of service
@@ -51,29 +48,43 @@ read -sp "Postgres password: " postgres_pass
 echo ""
 
 
-# Find matching database patches
-echo "Looking up DB Patch $PATCH [$SERVICE]..."
-cmd="find /home/production/cxgn/sgn/db -maxdepth 1 -regex '.*\/0*$PATCH$' -exec echo {} \;"
-patch_dir=$("$DOCKER" exec "$CONTAINER" bash -c "$cmd" | tr -d '\r')
-if [ -z $patch_dir ]; then
-    echo "ERROR: Could not find matching DB Patch [$PATCH]"
-    exit 1
-fi
+# RUN A SPECIFIC SET OF PATCHES
+if [[ ! -z $PATCH ]]; then
 
-# Find patch files
-echo "Finding patch files [$patch_dir]..."
-cmd="find \"$patch_dir\" -maxdepth 1 -regex '.*\/.*\.pm$' -exec echo {} \;"
-patches=$("$DOCKER" exec "$CONTAINER" bash -c "$cmd" | tr -d '\r')
-if [ -z "$patches" ]; then
-    echo "ERROR: No patch files found [$patch_dir]"
-    exit 1
-fi
+    # Find matching database patches
+    echo "Looking up DB Patch $PATCH [$SERVICE]..."
+    cmd="find /home/production/cxgn/sgn/db -maxdepth 1 -regex '.*\/0*$PATCH$' -exec echo {} \;"
+    patch_dir=$("$DOCKER" exec "$CONTAINER" bash -c "$cmd" | tr -d '\r')
+    if [ -z $patch_dir ]; then
+        echo "ERROR: Could not find matching DB Patch [$PATCH]"
+        exit 1
+    fi
 
-# Run the patch files
-echo "Running patches [$db]..."
-while IFS= read -r patch; do
-    name=$(basename "$patch" .pm)
-    echo "...running $name patch"
-    cmd="cd \"$patch_dir\"; echo -ne \"postgres\n$postgres_pass\" | mx-run $name -F -H breedbase_db -D \"$db\" -u admin"
-    "$DOCKER" exec -t "$CONTAINER" bash -c "$cmd"
-done <<< "$patches"
+    # Find patch files
+    echo "Finding patch files [$patch_dir]..."
+    cmd="find \"$patch_dir\" -maxdepth 1 -regex '.*\/.*\.pm$' -exec echo {} \;"
+    patches=$("$DOCKER" exec "$CONTAINER" bash -c "$cmd" | tr -d '\r')
+    if [ -z "$patches" ]; then
+        echo "ERROR: No patch files found [$patch_dir]"
+        exit 1
+    fi
+
+    # Run the patch files
+    echo "Running patches [$db]..."
+    while IFS= read -r patch; do
+        name=$(basename "$patch" .pm)
+        echo "...running $name patch"
+        cmd="cd \"$patch_dir\"; echo -ne \"postgres\n$postgres_pass\" | mx-run $name -F -H \"$db_host\" -D \"$db\" -u admin"
+        "$DOCKER" exec -t "$CONTAINER" bash -c "$cmd"
+    done <<< "$patches"
+
+
+# RUN ALL PATCHES
+else
+
+    # Run the run_all_patches.pl script
+    echo "Running all patches [$SERVICE]..."
+    cmd="cd /home/production/cxgn/sgn/db; perl ./run_all_patches.pl -u postgres -p \"$postgres_pass\" -h \"$db_host\" -d \"$db\" -e admin"
+    "$DOCKER" exec -t -e PGPASSWORD="$postgres_pass" "$CONTAINER" bash -c "$cmd"
+
+fi
