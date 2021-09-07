@@ -171,6 +171,7 @@ stop_db() {
 ########
 start_web() {
     "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" up --no-start
+    "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" start "$DOCKER_DB_SERVICE"
     "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" start "$1"
 }
 
