@@ -28,7 +28,7 @@ BB_HOME="$(dirname $DIR)"
 DOCKER="$(which docker)"
 
 # Docker Repositories to Use
-BB_DB_REPO="triticeaetoolbox/breedbase_database"
+BB_DB_REPO="postgres:12"
 BB_WEB_REPO="triticeaetoolbox/breedbase_web"
 
 # Paths to Breedbase scripts, files, etc

@@ -52,7 +52,7 @@ BREEDBASE="$BB_HOME/bin/breedbase"
 UPDATE_SCRIPTS="$BB_HOME/bin/update.d/"
 
 # Docker Repositories to Use
-BB_DB_REPO="triticeaetoolbox/breedbase_database"
+BB_DB_REPO="postgres:12"
 BB_WEB_REPO="triticeaetoolbox/breedbase_web"
 
 
@@ -132,7 +132,7 @@ fi
 #
 # RUN UPDATE SCRIPTS
 #
-if [[ ("$db_updated" -eq 1) || ("$web_updated" -eq 1) || ("$SETUP" -eq 1) || ("$FORCE" -eq 1) || (! -z "$SCRIPT") ]]; then
+if [[ ("$web_updated" -eq 1) || ("$SETUP" -eq 1) || ("$FORCE" -eq 1) || (! -z "$SCRIPT") ]]; then
     echo ""
     echo "==> Running update scripts..."
 

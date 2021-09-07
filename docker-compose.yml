@@ -86,13 +86,11 @@ services:
         source: ./mnt/blast_databases/hordeum
         target: /home/production/cxgn_blast_databases
   breedbase_db:
-    image: triticeaetoolbox/breedbase_database:latest
+    image: postgres:12
     container_name: breedbase_db
     labels:
       org.breedbase.type: 'breedbase_db'
     shm_size: '1gb'
-    ports:
-      - 5432:5432
     volumes:
       - type: bind
         source: ./postgresql/data
