@@ -6,8 +6,6 @@
 # by calling the patch util script
 #
 
-BB_HOME="$1"
-SERVICE="$2"
 BREEDBASE="$BB_HOME/bin/breedbase"
 DOCKER_COMPOSE_FILE="$BB_HOME/docker-compose.yml"
 BB_PATCH="$BB_HOME/bin/utils.d/patch.sh"
@@ -17,15 +15,16 @@ DOCKER_COMPOSE=$(which docker-compose)
 DOCKER_DB_SERVICE="breedbase_db"
 
 # Get the defined web services
-if [ -z "$SERVICE" ]; then
+if [ -z "$BB_SERVICE" ]; then
     services=$("$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" config --services)
     IFS=$'\n' read -d '' -r -a services <<< "$services"
 else
-    services="$SERVICE"
+    services="$BB_SERVICE"
 fi
 
 
 echo "==> Running Database Patches..."
+echo "PASS: $BB_POSTGRES_PASS"
 
 # Process each web instance
 for service in "${services[@]}"; do
@@ -33,6 +32,6 @@ for service in "${services[@]}"; do
         echo "... patching $service instance"
 
         # Run Patch Script
-        $(which bash) "$BB_PATCH" "$BB_HOME" "$service"
+        BB_HOME="$BB_HOME" BB_POSTGRES_PASS="$BB_POSTGRES_PASS" $(which bash) "$BB_PATCH" "$service"
     fi
 done

@@ -6,10 +6,8 @@
 # Start all specified services
 #
 
-BB_HOME="$1"
-SERVICE="$2"
 BREEDBASE="$BB_HOME/bin/breedbase"
 
 echo "==> Restarting the T3/Breedbase Docker Containers..."
-"$BREEDBASE" stop "$SERVICE"
-"$BREEDBASE" start "$SERVICE"
+"$BREEDBASE" stop "$BB_SERVICE"
+"$BREEDBASE" start "$BB_SERVICE"

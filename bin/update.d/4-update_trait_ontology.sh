@@ -6,8 +6,6 @@
 # from the obo file in the sgn repository
 #
 
-BB_HOME="$1"
-SERVICE="$2"
 BREEDBASE="$BB_HOME/bin/breedbase"
 DOCKER_COMPOSE_FILE="$BB_HOME/docker-compose.yml"
 BB_CONFIG_DIR="$BB_HOME/config/"
@@ -17,11 +15,11 @@ DOCKER_COMPOSE=$(which docker-compose)
 DOCKER_DB_SERVICE="breedbase_db"
 
 # Get the defined web services
-if [ -z "$SERVICE" ]; then
+if [ -z "$BB_SERVICE" ]; then
     services=$("$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" config --services)
     IFS=$'\n' read -d '' -r -a services <<< "$services"
 else
-    services="$SERVICE"
+    services="$BB_SERVICE"
 fi
 
 
@@ -29,8 +27,10 @@ echo "==> Updating the Trait Ontology..."
 
 
 # Get postgres password from user
-read -sp "Postgres password: " postgres_pass
-echo ""
+if [ -z $BB_POSTGRES_PASS ]; then
+    read -sp "Postgres password: " BB_POSTGRES_PASS
+    echo ""
+fi
 
 # Process each web instance
 for service in "${services[@]}"; do
@@ -48,8 +48,8 @@ for service in "${services[@]}"; do
         # Build command to run chado scripts
         db=$(cat "$BB_CONFIG_DIR/$service.conf" | grep ^dbname | tr -s ' ' | cut -d ' ' -f 2)
         cmd="cd  /home/production/cxgn/Chado/chado/bin;
-perl ./gmod_load_cvterms.pl -H breedbase_db -D $db -d Pg -r postgres -p \"$postgres_pass\" -s $obo_s -n $obo_n -uv \"$obo_file_path\";
-perl ./gmod_make_cvtermpath.pl -H breedbase_db -D $db -d Pg -u postgres -p \"$postgres_pass\" -c $obo_n -v;"
+perl ./gmod_load_cvterms.pl -H breedbase_db -D $db -d Pg -r postgres -p \"$BB_POSTGRES_PASS\" -s $obo_s -n $obo_n -uv \"$obo_file_path\";
+perl ./gmod_make_cvtermpath.pl -H breedbase_db -D $db -d Pg -u postgres -p \"$BB_POSTGRES_PASS\" -c $obo_n -v;"
 
         # Run the Chado scripts
         "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$service" bash -c "$cmd"

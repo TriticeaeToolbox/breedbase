@@ -83,7 +83,7 @@ fi
 for f in "$SETUP_SCRIPTS"/$scripts; do
     echo ""
     echo "[$(basename $f)]"
-    if ! BB_HOME="$BB_HOME" bash "$f"; then 
+    if ! BB_HOME="$BB_HOME" $(which bash) "$f"; then 
         echo "ERROR: Setup script failed! [$f]"
         exit 1
     fi

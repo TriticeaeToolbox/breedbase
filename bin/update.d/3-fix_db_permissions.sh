@@ -5,8 +5,6 @@
 # This script will fix various database permissions for the web_usr user
 #
 
-BB_HOME="$1"
-SERVICE="$2"
 BREEDBASE="$BB_HOME/bin/breedbase"
 DOCKER_COMPOSE_FILE="$BB_HOME/docker-compose.yml"
 BB_CONFIG_DIR="$BB_HOME/config/"
@@ -21,11 +19,11 @@ DOCKER_DB_SERVICE="breedbase_db"
 
 
 # Get the defined web services
-if [ -z "$SERVICE" ]; then
+if [ -z "$BB_SERVICE" ]; then
     services=$("$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" config --services)
     IFS=$'\n' read -d '' -r -a services <<< "$services"
 else
-    services="$SERVICE"
+    services="$BB_SERVICE"
 fi
 
 

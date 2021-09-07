@@ -133,6 +133,13 @@ fi
 # RUN UPDATE SCRIPTS
 #
 if [[ ("$web_updated" -eq 1) || ("$SETUP" -eq 1) || ("$FORCE" -eq 1) || (! -z "$SCRIPT") ]]; then
+
+    # Prompt for postgres password
+    echo "==> Enter postgres database password..."
+    read -sp "Postgres password: " postgres_pass
+    echo ""
+
+    # Run update script(s)
     echo ""
     echo "==> Running update scripts..."
 
@@ -145,11 +152,12 @@ if [[ ("$web_updated" -eq 1) || ("$SETUP" -eq 1) || ("$FORCE" -eq 1) || (! -z "$
     for f in "$UPDATE_SCRIPTS"/$scripts; do
         echo ""
         echo "[$(basename $f)]"
-        if ! bash "$f" "$BB_HOME" "$SERVICE"; then 
+        if ! BB_HOME="$BB_HOME" BB_POSTGRES_PASS="$postgres_pass" BB_SERVICE="$SERVICE" $(which bash) "$f"; then 
             echo "ERROR: Update script failed! [$f]"
             exit 1
         fi
     done
+
 fi
 
 
