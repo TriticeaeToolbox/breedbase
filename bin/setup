@@ -7,36 +7,18 @@
 #
 
 
-# Script that is specified to run
-# skip the docker pulls
-# force running the specified script
-SCRIPT=""
-
-
-# Get BB Home Directory
-SOURCE="${BASH_SOURCE[0]}"
-while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
-  DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
-  SOURCE="$(readlink "$SOURCE")"
-  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-done
-DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
-BB_HOME="$(dirname $DIR)"
-
-
 # Path to Docker binaries
 DOCKER="$(which docker)"
-
-# Docker Repositories to Use
-BB_DB_REPO="postgres:12"
-BB_WEB_REPO="triticeaetoolbox/breedbase_web"
 
 # Paths to Breedbase scripts, files, etc
 BREEDBASE="$BB_HOME/bin/breedbase"
 SETUP_SCRIPTS="$BB_HOME/bin/setup.d/"
 
 
-# Parse the arguments for a specific script
+# Script that is specified to run
+# skip the docker pulls
+# force running the specified script
+SCRIPT="" 
 if [[ ! -z "$1" ]]; then
     files=$(find "$SETUP_SCRIPTS" -name "$1*.sh")
     count=$(echo -n "$files" | grep -c '^')
@@ -60,12 +42,12 @@ echo "======== T3/BREEDBASE INITIAL SETUP ========"
 #
 if [ -z "$SCRIPT" ]; then
     echo ""
-    echo "==> Downloading T3/Breedbase Database Image..."
+    echo "==> Downloading T3/Breedbase Database Image [$BB_DB_REPO]..."
     db_update=$("$DOCKER" pull "$BB_DB_REPO")
     db_update_status=$(echo "$db_update" | grep ^Status)
     echo "$db_update_status"
 
-    echo "==> Downloading T3/Breedbase Web Image..."
+    echo "==> Downloading T3/Breedbase Web Image [$BB_WEB_REPO]..."
     web_update=$("$DOCKER" pull "$BB_WEB_REPO")
     web_update_status=$(echo "$web_update" | grep ^Status)
     echo "$web_update_status"
@@ -100,7 +82,7 @@ if [ -z "$SCRIPT" ]; then
     echo "$BREEDBASE"
     echo "Examples:"
     echo "breedbase start - starts all services (database and all web instances)"
-    echo "breedbase start db triticum - starts specified services (database and wheat instance)"
+    echo "breedbase start triticum - starts specified services (database and wheat instance)"
     echo "breedbase stop - stops all services"
     echo "breedbase stop triticum - stops the specified services (wheat instance)"
     echo ""

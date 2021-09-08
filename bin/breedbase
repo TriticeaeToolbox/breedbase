@@ -37,6 +37,10 @@ DOCKER_COMPOSE="$(which docker-compose)"
 DOCKER_LABEL_DB="breedbase_db"
 DOCKER_LABEL_WEB="breedbase_web"
 
+# Docker Repositories to Use
+BB_DB_REPO="postgres:12"
+BB_WEB_REPO="triticeaetoolbox/breedbase_web"
+
 # Name of breedbase postgres docker service
 DOCKER_DB_SERVICE="breedbase_db"
 
@@ -235,7 +239,7 @@ reload() {
 # Run the breedbase setup script
 ########
 setup() {
-    "$BB_SETUP" "$1"
+    BB_HOME="$BB_HOME" BB_DB_REPO="$BB_DB_REPO" BB_WEB_REPO="$BB_WEB_REPO" "$BB_SETUP" "$1"
 }
 
 
@@ -248,7 +252,7 @@ setup() {
 #   script - the update script to run, optionally followed by the name of the service
 ########
 update() {
-    "$BB_UPDATE" "$1" "${@:2}"
+    BB_HOME="$BB_HOME" BB_DB_REPO="$BB_DB_REPO" BB_WEB_REPO="$BB_WEB_REPO" "$BB_UPDATE" "$1" "${@:2}"
 }
 
 
@@ -260,7 +264,7 @@ update() {
 #   ... - additional arguments passed to the utility script
 ########
 utils() {
-    BB_DOCKER_DB_SERVICE="$DOCKER_DB_SERVICE" "$BB_UTILS" "$1" "${@:2}"
+    BB_HOME="$BB_HOME" BB_DOCKER_DB_SERVICE="$DOCKER_DB_SERVICE" "$BB_UTILS" "$1" "${@:2}"
 }
 
 
