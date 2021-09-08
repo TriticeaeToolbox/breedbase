@@ -32,11 +32,18 @@ fi
 echo "==> Pulling Code Upadtes..."
 for service in "${services[@]}"; do
     if [[ "$service" != "$DOCKER_DB_SERVICE" ]]; then
-        echo "... pulling updates into $service"
         config="$BB_CONFIG_DIR/$service.conf"
         mason_dir=$(cat "$BB_CONFIG_DIR/$service.conf" | grep "^ *add_comp_root" | awk '{$1=$1;print}' | cut -d ' ' -f 2)
-        cmd="cd /home/production/cxgn/sgn; git pull; cd \"$mason_dir\"; cd ../; git pull"
-        "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$service" bash -c "$cmd"
+
+        echo "... pulling updates into $service sgn repo"
+        cmd_sgn='cd /home/production/cxgn/sgn; b=$(git log -n 1 --pretty=%D HEAD | cut -d " " -f 2 | sed "0,/\//s// /"); git pull $b;'
+        "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$service" bash -c "$cmd_sgn"
+
+        echo "... pulling updates into $service mason repo"
+        cmd_mason='cd '"$mason_dir"'; b=$(git log -n 1 --pretty=%D HEAD | cut -d " " -f 2 | sed "0,/\//s// /"); git pull $b;'
+        "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$service" bash -c "$cmd_mason"
+
+        echo "... reloading $service"
         "$BREEDBASE" reload "$service"
     fi
 done
