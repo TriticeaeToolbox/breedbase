@@ -200,11 +200,24 @@ stop_web() {
 #   service - the breedbase service name
 ########
 log() {
+    
+    # set service name
     if [[ "$1" == "db" ]]; then
-        "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" logs -f "$DOCKER_DB_SERVICE"
+        service="$DOCKER_DB_SERVICE"
     else
-        "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" logs -f "$1"
+        service="$1"
     fi
+
+    # get container name
+    container=breedbase_"$service"
+    container_hash=$("$DOCKER" ps -q -f name="$container")
+    if [ -z $container_hash ]; then
+        container=$("$DOCKER" inspect -f '{{.Name}}' $("$DOCKER_COMPOSE" ps -q "$service") | cut -c2-)
+    fi
+    
+    # Show logs
+    "$DOCKER" logs -ft -n 100 "$container"
+
 }
 
 
