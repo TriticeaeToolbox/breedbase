@@ -154,12 +154,12 @@ echo "...Backing up Target DB $TARGET/sgn_people [$PG_TARGET_HOST] to Temporary 
 "$PG_DUMP" -h "$PG_TARGET_HOST" -p "$PG_TARGET_PORT" -U "$PG_TARGET_USER" -n sgn_people "$TARGET" | "$PSQL" -h "$PG_TARGET_HOST" -p "$PG_TARGET_PORT" -U "$PG_TARGET_USER" "$TEMP" >> "$LOG" 2>&1
 
 
+
 # Stop Web Container
 if [ ! -z "$INSTANCE" ]; then
     echo "...Stopping Web Container $INSTANCE" | tee -a "$LOG"
     "$BB" stop "$INSTANCE" >> "$LOG" 2>&1
 fi
-
 
 # Drop target database
 echo "...Dropping Target DB $TARGET [$PG_TARGET_HOST]" | tee -a "$LOG"
@@ -169,14 +169,18 @@ echo "...Dropping Target DB $TARGET [$PG_TARGET_HOST]" | tee -a "$LOG"
 echo "...Renaming Temporary DB $TEMP to $TARGET [$PG_TARGET_HOST]" | tee -a "$LOG"
 "$PSQL" -h "$PG_TARGET_HOST" -p "$PG_TARGET_PORT" -U "$PG_TARGET_USER" -c "ALTER DATABASE $TEMP RENAME TO $TARGET;" >> "$LOG" 2>&1
 
-# Refresh Mat Views
-echo "...Refreshing the Materialized Views [$PG_TARGET_HOST]" | tee -a "$LOG"
-"$PSQL" -h "$PG_TARGET_HOST" -p "$PG_TARGET_PORT" -U "$PG_TARGET_USER" -d "$TARGET" -c "SELECT public.refresh_materialized_views();" >> "$LOG" 2>&1
-"$PSQL" -h "$PG_TARGET_HOST" -p "$PG_TARGET_PORT" -U "$PG_TARGET_USER" -d "$TARGET" -c "SELECT public.refresh_materialized_stockprop();" >> "$LOG" 2>&1
-
-
 # Start Web Container
 if [ ! -z "$INSTANCE" ]; then
     echo "...Start Web Container $INSTANCE" | tee -a "$LOG"
     "$BB" start "$INSTANCE" >> "$LOG" 2>&1
 fi
+
+
+
+# Refresh Mat Views
+echo "...Refreshing the Materialized Views [$PG_TARGET_HOST]" | tee -a "$LOG"
+"$PSQL" -h "$PG_TARGET_HOST" -p "$PG_TARGET_PORT" -U "$PG_TARGET_USER" -d "$TARGET" -c "REFRESH MATERIALIZED VIEW public.materialized_genoview;" >> "$LOG" 2>&1
+"$PSQL" -h "$PG_TARGET_HOST" -p "$PG_TARGET_PORT" -U "$PG_TARGET_USER" -d "$TARGET" -c "REFRESH MATERIALIZED VIEW public.materialized_phenoview;" >> "$LOG" 2>&1
+"$PSQL" -h "$PG_TARGET_HOST" -p "$PG_TARGET_PORT" -U "$PG_TARGET_USER" -d "$TARGET" -c "REFRESH MATERIALIZED VIEW public.materialized_phenotype_jsonb_table;" >> "$LOG" 2>&1
+"$PSQL" -h "$PG_TARGET_HOST" -p "$PG_TARGET_PORT" -U "$PG_TARGET_USER" -d "$TARGET" -c "REFRESH MATERIALIZED VIEW public.materialized_stockprop;" >> "$LOG" 2>&1
+"$PSQL" -h "$PG_TARGET_HOST" -p "$PG_TARGET_PORT" -U "$PG_TARGET_USER" -d "$TARGET" -c "SELECT public.create_materialized_markerview(true);" >> "$LOG" 2>&1
