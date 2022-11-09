@@ -47,7 +47,7 @@ for service in "${services[@]}"; do
 
         # Build command to run chado scripts
         db=$(cat "$BB_CONFIG_DIR/$service.conf" | grep ^dbname | tr -s ' ' | cut -d ' ' -f 2)
-        cmd="cd  /home/production/cxgn/Chado/chado/bin;
+        cmd="cd  /home/production/cxgn/chado_tools/chado/bin;
 perl ./gmod_load_cvterms.pl -H breedbase_db -D $db -d Pg -r postgres -p \"$BB_POSTGRES_PASS\" -s $obo_s -n $obo_n -uv \"$obo_file_path\";
 perl ./gmod_make_cvtermpath.pl -H breedbase_db -D $db -d Pg -u postgres -p \"$BB_POSTGRES_PASS\" -c $obo_n -v;"
 
