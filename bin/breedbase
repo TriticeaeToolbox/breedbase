@@ -31,7 +31,7 @@ DOCKER_COMPOSE_FILE="$BB_HOME/docker-compose.yml"
 
 # Path to Docker binaries
 DOCKER="$(which docker)"
-DOCKER_COMPOSE="$(which docker-compose)"
+DOCKER_COMPOSE="$DOCKER compose"
 
 # Docker Container Labels
 DOCKER_LABEL_DB="breedbase_db"
@@ -104,7 +104,7 @@ status() {
 start() {
     args="$@"
     if [ -z "$args" ]; then
-        "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" up --detach
+        $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" up --detach
     else
         for arg in `echo $args`; do
             if [[ "$arg" == "db" ]]; then
@@ -124,9 +124,9 @@ start() {
 stop() {
     args="$@"
     if [ -z "$args" ]; then
-        services=`"$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" config --services`
+        services=`$DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" config --services`
         while IFS= read -r service; do 
-            "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" stop "$service"
+            $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" stop "$service"
         done <<< "$services"
     else
         for arg in `echo $args`; do
@@ -145,7 +145,7 @@ stop() {
 # Stop and remove all of the docker containers (database and all web services)
 ########
 clean() {
-    "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" down
+    $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" down
 }
 
 
@@ -154,8 +154,8 @@ clean() {
 # Start the DB Service
 ########
 start_db() {
-    "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" up --no-start
-    "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" start "$DOCKER_DB_SERVICE"
+    $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" up --no-start
+    $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" start "$DOCKER_DB_SERVICE"
 }
 
 
@@ -164,7 +164,7 @@ start_db() {
 # Stop the DB Service
 #######
 stop_db() {
-    "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" stop "$DOCKER_DB_SERVICE"
+    $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" stop "$DOCKER_DB_SERVICE"
 }
 
 
@@ -175,9 +175,9 @@ stop_db() {
 #   service - the breedbase web service name
 ########
 start_web() {
-    "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" up --no-start
-    "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" start "$DOCKER_DB_SERVICE"
-    "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" start "$1"
+    $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" up --no-start
+    $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" start "$DOCKER_DB_SERVICE"
+    $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" start "$1"
 }
 
 
@@ -188,7 +188,7 @@ start_web() {
 #   service - the breedbase web service name
 ########
 stop_web() {
-    "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" stop "$1"
+    $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" stop "$1"
 }
 
 
@@ -212,7 +212,7 @@ log() {
     container=breedbase_"$service"
     container_hash=$("$DOCKER" ps -q -f name="$container")
     if [ -z $container_hash ]; then
-        container=$("$DOCKER" inspect -f '{{.Name}}' $("$DOCKER_COMPOSE" ps -q "$service") | cut -c2-)
+        container=$("$DOCKER" inspect -f '{{.Name}}' $($DOCKER_COMPOSE ps -q "$service") | cut -c2-)
     fi
     
     # Show logs
@@ -229,9 +229,9 @@ log() {
 ########
 bash() {
     if [[ "$1" == "db" ]]; then
-        "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash
+        $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash
     else
-        "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$1" bash
+        $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$1" bash
     fi
 }
 
@@ -243,7 +243,7 @@ bash() {
 #   service - the breedbase web service name
 ########
 reload() {
-    "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$1" bash -c 'kill -SIGHUP $(cat /tmp/sgn.pid)'
+    $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$1" bash -c 'kill -SIGHUP $(cat /tmp/sgn.pid)'
 }
 
 
