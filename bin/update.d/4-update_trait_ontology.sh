@@ -11,12 +11,13 @@ DOCKER_COMPOSE_FILE="$BB_HOME/docker-compose.yml"
 BB_CONFIG_DIR="$BB_HOME/config/"
 
 # Docker compose location
-DOCKER_COMPOSE=$(which docker-compose)
+DOCKER=$(which docker)
+DOCKER_COMPOSE="$DOCKER compose"
 DOCKER_DB_SERVICE="breedbase_db"
 
 # Get the defined web services
 if [ -z "$BB_SERVICE" ]; then
-    services=$("$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" config --services)
+    services=$($DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" config --services)
     IFS=$'\n' read -d '' -r -a services <<< "$services"
 else
     services="$BB_SERVICE"
@@ -42,8 +43,8 @@ for service in "${services[@]}"; do
         obo_file_path="/home/production/cxgn/sgn/ontology/$obo_file"
 
         # Get ontology file properties
-        obo_s=$("$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$service" bash -c "cat \"$obo_file_path\" | grep ^ontology: | tr -s ' ' | cut -d ' ' -f 2" | tr -d '\r')
-        obo_n=$("$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$service" bash -c "cat \"$obo_file_path\" | grep ^default-namespace: | tr -s ' ' | cut -d ' ' -f 2" | tr -d '\r')
+        obo_s=$($DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$service" bash -c "cat \"$obo_file_path\" | grep ^ontology: | tr -s ' ' | cut -d ' ' -f 2" | tr -d '\r')
+        obo_n=$($DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$service" bash -c "cat \"$obo_file_path\" | grep ^default-namespace: | tr -s ' ' | cut -d ' ' -f 2" | tr -d '\r')
 
         # Build command to run chado scripts
         db=$(cat "$BB_CONFIG_DIR/$service.conf" | grep ^dbname | tr -s ' ' | cut -d ' ' -f 2)
@@ -52,7 +53,7 @@ perl ./gmod_load_cvterms.pl -H breedbase_db -D $db -d Pg -r postgres -p \"$BB_PO
 perl ./gmod_make_cvtermpath.pl -H breedbase_db -D $db -d Pg -u postgres -p \"$BB_POSTGRES_PASS\" -c $obo_n -v;"
 
         # Run the Chado scripts
-        "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$service" bash -c "$cmd"
+        $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$service" bash -c "$cmd"
 
 
         echo "... checking $service for missing CVTypes ontology"
@@ -60,7 +61,7 @@ perl ./gmod_make_cvtermpath.pl -H breedbase_db -D $db -d Pg -u postgres -p \"$BB
         # Get cvterm id of required term
         sql="SELECT cvterm_id FROM public.cvterm WHERE cvterm.cv_id = (SELECT cv_id FROM public.cv WHERE cv.name = 'composable_cvtypes') AND cvterm.name = 'trait_ontology';"
         cmd="psql -t -h localhost -U postgres -d $db -c \"$sql\" | tr -d \"[:blank:]\""
-        cvterm_id=$("$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd" | tr -d '\r')
+        cvterm_id=$($DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd" | tr -d '\r')
 
         # CV is missing...
         if [[ -z "$cvterm_id" ]]; then
@@ -85,7 +86,7 @@ INSERT into cvterm (cv_id,name,dbxref_id) select cv_id, 'time_ontology', dbxref_
             # Add the missing ontoloy
             echo "... adding missing CVTypes ontology to $service"
             cmd="psql -h localhost -U postgres -d $db -c \"$sql\""
-            "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd"
+            $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd"
         
         fi
 
@@ -95,12 +96,12 @@ INSERT into cvterm (cv_id,name,dbxref_id) select cv_id, 'time_ontology', dbxref_
         # get cv id of trait ontology
         sql="SELECT cv_id FROM public.cv WHERE cv.name = '$obo_n';"
         cmd="psql -t -h localhost -U postgres -d $db -c \"$sql\" | tr -d \"[:blank:]\""
-        cv_id=$("$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd" | tr -d '\r')
+        cv_id=$($DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd" | tr -d '\r')
 
         # Get cvprop id of tagged trait ontology
         sql="SELECT cvprop_id FROM public.cvprop WHERE cv_id = '$cv_id' AND type_id = (SELECT cvterm_id FROM public.cvterm WHERE cv_id = (SELECT cv_id FROM public.cv WHERE name = 'composable_cvtypes') AND name = 'trait_ontology');"
         cmd="psql -t -h localhost -U postgres -d $db -c \"$sql\" | tr -d \"[:blank:]\""
-        cvprop_id=$("$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd" | tr -d '\r')
+        cvprop_id=$($DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd" | tr -d '\r')
 
         # CVProp is missing...
         if [[ -z "$cvprop_id" ]]; then
@@ -112,7 +113,7 @@ INSERT INTO public.cvprop (cv_id, type_id) SELECT cv.cv_id AS cv_id, cvterm.cvte
             # Add the missing cvprop
             echo "... adding missing CVProp for $service trait ontology"    
             cmd="psql -h localhost -U postgres -d $db -c \"$sql\""
-            "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd"
+            $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd"
 
         fi
     fi

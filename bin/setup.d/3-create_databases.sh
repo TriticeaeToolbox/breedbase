@@ -12,12 +12,13 @@ BB_CONFIG_DIR="$BB_HOME/config/"
 
 
 # Docker compose location
-DOCKER_COMPOSE=$(which docker-compose)
+DOCKER=$(which docker)
+DOCKER_COMPOSE="$DOCKER compose"
 DOCKER_DB_SERVICE="breedbase_db"
 
 
 # Get the defined web services
-services=$("$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" config --services)
+services=$($DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" config --services)
 IFS=$'\n' read -d '' -r -a services <<< "$services"
 
 
@@ -33,6 +34,6 @@ for service in "${services[@]}"; do
         db=$(cat "$BB_CONFIG_DIR/$service.conf" | grep ^dbname | tr -s ' ' | cut -d ' ' -f 2)
         sql="SELECT 'CREATE DATABASE $db WITH TEMPLATE breedbase' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$db')\gexec"
         cmd="echo \"$sql\" | psql -h localhost -U postgres"
-        "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd"
+        $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd"
     fi
 done

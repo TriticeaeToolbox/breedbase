@@ -11,7 +11,8 @@ BB_CONFIG_DIR="$BB_HOME/config/"
 DOCKER_COMPOSE_FILE="$BB_HOME/docker-compose.yml"
 
 # Docker compose location
-DOCKER_COMPOSE=$(which docker-compose)
+DOCKER=$(which docker)
+DOCKER_COMPOSE="$DOCKER compose"
 DOCKER_DB_SERVICE="breedbase_db"
 
 # Initial postgres password
@@ -53,12 +54,12 @@ echo ""
 echo "==> Updating the web_usr password..."
 sql="ALTER USER web_usr WITH PASSWORD '$webusr_pass';"
 cmd="psql -h localhost -U postgres -d postgres -c \"$sql\""
-"$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd"
+$DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd"
 
 echo "==> Updating the postgres password..."
 sql="ALTER USER postgres WITH PASSWORD '$postgres_pass';"
 cmd="psql -h localhost -U postgres -d postgres -c \"$sql\""
-"$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd"
+$DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd"
 
 
 # Update the config files

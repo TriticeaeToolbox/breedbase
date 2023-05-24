@@ -27,7 +27,8 @@ DOCKER_COMPOSE_FILE="$BB_HOME/docker-compose.yml"
 BB_CONFIG="$BB_CONFIG_DIR/$SERVICE.conf"
 
 # Path to Docker binaries
-DOCKER_COMPOSE="$(which docker-compose)"
+DOCKER=$(which docker)
+DOCKER_COMPOSE="$DOCKER compose"
 
 
 # Get database name from config file
@@ -37,7 +38,7 @@ db=$(cat "$BB_CONFIG" | grep ^dbname | tr -s ' ' | cut -d ' ' -f 2)
 echo "Looking up user $USER [$db]..."
 sql="SELECT sp_person_id, last_name, first_name, username, pending_email, disabled FROM sgn_people.sp_person WHERE username = '$USER' OR pending_email = '$USER' OR private_email = '$USER';"
 cmd="echo \"$sql\" | psql -h localhost -U postgres -d \"$db\""
-"$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$BB_DOCKER_DB_SERVICE" bash -c "$cmd"
+$DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$BB_DOCKER_DB_SERVICE" bash -c "$cmd"
 
 # Prompt for user ids
 read -p 'Enter the sp_person_id of the account to confirm: ' sp_person_id
@@ -47,5 +48,5 @@ if [ ! -z $sp_person_id ]; then
     echo "Confirming account $sp_person_id..."
     sql="UPDATE sgn_people.sp_person SET private_email = pending_email, confirm_code = NULL, disabled = NULL WHERE sp_person_id = $sp_person_id;"
     cmd="echo \"$sql\" | psql -h localhost -U postgres -d \"$db\""
-    "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$BB_DOCKER_DB_SERVICE" bash -c "$cmd"
+    $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$BB_DOCKER_DB_SERVICE" bash -c "$cmd"
 fi

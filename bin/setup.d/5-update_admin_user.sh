@@ -10,11 +10,12 @@ DOCKER_COMPOSE_FILE="$BB_HOME/docker-compose.yml"
 BB_CONFIG_DIR="$BB_HOME/config/"
 
 # Docker compose location
-DOCKER_COMPOSE=$(which docker-compose)
+DOCKER=$(which docker)
+DOCKER_COMPOSE="$DOCKER compose"
 DOCKER_DB_SERVICE="breedbase_db"
 
 # Get the defined web services
-services=$("$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" config --services)
+services=$($DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" config --services)
 IFS=$'\n' read -d '' -r -a services <<< "$services"
 
 
@@ -52,6 +53,6 @@ for service in "${services[@]}"; do
         # Update the admin user properties
         sql="UPDATE sgn_people.sp_person SET private_email = '$admin_email', password = sgn.crypt('$admin_pass', sgn.gen_salt('bf')), pending_email = NULL, confirm_code = NULL, cookie_string = NULL WHERE username = 'admin';"
         cmd="psql -h localhost -U postgres -d $db -c \"$sql\""
-        "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd"
+        $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd"
     fi
 done

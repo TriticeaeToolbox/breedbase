@@ -11,12 +11,13 @@ DOCKER_COMPOSE_FILE="$BB_HOME/docker-compose.yml"
 BB_PATCH="$BB_HOME/bin/utils.d/patch.sh"
 
 # Docker compose location
-DOCKER_COMPOSE=$(which docker-compose)
+DOCKER=$(which docker)
+DOCKER_COMPOSE="$DOCKER compose"
 DOCKER_DB_SERVICE="breedbase_db"
 
 # Get the defined web services
 if [ -z "$BB_SERVICE" ]; then
-    services=$("$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" config --services)
+    services=$($DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" config --services)
     IFS=$'\n' read -d '' -r -a services <<< "$services"
 else
     services="$BB_SERVICE"

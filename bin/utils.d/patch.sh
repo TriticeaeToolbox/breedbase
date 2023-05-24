@@ -23,8 +23,8 @@ DOCKER_COMPOSE_FILE="$BB_HOME/docker-compose.yml"
 BB_CONFIG="$BB_CONFIG_DIR/$BB_SERVICE.conf"
 
 # Path to Docker binaries
-DOCKER_COMPOSE="$(which docker-compose)"
-DOCKER="$(which docker)"
+DOCKER=$(which docker)
+DOCKER_COMPOSE="$DOCKER compose"
 
 
 # Get database name from config file
@@ -37,7 +37,7 @@ container_hash=$("$DOCKER" ps -q -f name="$container")
 if [ ! -z $container_hash ]; then
     CONTAINER="$container"
 else
-    CONTAINER=$("$DOCKER" inspect -f '{{.Name}}' $("$DOCKER_COMPOSE" ps -q "$BB_SERVICE") | cut -c2-)
+    CONTAINER=$("$DOCKER" inspect -f '{{.Name}}' $($DOCKER_COMPOSE ps -q "$BB_SERVICE") | cut -c2-)
 fi
 
 

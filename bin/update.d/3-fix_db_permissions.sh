@@ -14,13 +14,14 @@ SQL_FILE="$BB_HOME/bin/update.d/3-web_usr_grants.sql"
 SQL=$(cat "$SQL_FILE")
 
 # Docker compose location
-DOCKER_COMPOSE=$(which docker-compose)
+DOCKER=$(which docker)
+DOCKER_COMPOSE="$DOCKER compose"
 DOCKER_DB_SERVICE="breedbase_db"
 
 
 # Get the defined web services
 if [ -z "$BB_SERVICE" ]; then
-    services=$("$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" config --services)
+    services=$($DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" config --services)
     IFS=$'\n' read -d '' -r -a services <<< "$services"
 else
     services="$BB_SERVICE"
@@ -38,6 +39,6 @@ for service in "${services[@]}"; do
         # Run web_usr_grants commands
         db=$(cat "$BB_CONFIG_DIR/$service.conf" | grep ^dbname | tr -s ' ' | cut -d ' ' -f 2)
         cmd="psql -h localhost -U postgres -d $db -c \"$SQL\""
-        "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd"
+        $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$DOCKER_DB_SERVICE" bash -c "$cmd"
     fi
 done

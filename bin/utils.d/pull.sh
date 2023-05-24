@@ -17,12 +17,13 @@ BB_CONFIG_DIR="$BB_HOME/config/"
 BREEDBASE="$BB_HOME/bin/breedbase"
 
 # Path to Docker binaries
-DOCKER_COMPOSE=$(which docker-compose)
+DOCKER=$(which docker)
+DOCKER_COMPOSE="$DOCKER compose"
 DOCKER_DB_SERVICE="breedbase_db"
 
 # Get list of web services
 if [ -z "$SERVICE" ]; then
-    services=$("$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" config --services)
+    services=$($DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" config --services)
     IFS=$'\n' read -d '' -r -a services <<< "$services"
 else
     services="$SERVICE"
@@ -37,16 +38,16 @@ for service in "${services[@]}"; do
 
         echo "... pulling updates into $service sgn repo"
         cmd_sgn='git -C /home/production/cxgn/sgn pull origin t3/master'
-        "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$service" bash -c "$cmd_sgn"
+        $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$service" bash -c "$cmd_sgn"
 
         echo "... setting git version info in $service sgn repo"
         cmd_git='/usr/local/bin/set_git_version_info'
-        "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$service" bash -c "$cmd_git"
+        $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$service" bash -c "$cmd_git"
 
         echo "... pulling updates into $service mason repo"
         branch=$(echo "$service" | perl -pe 's/_?dev_?//g' | perl -pe 's/_/-/g' | perl -pe 's/sugarkelp/master/g')
         cmd_mason='git -C '"$mason_dir"' pull origin '$branch''
-        "$DOCKER_COMPOSE" -f "$DOCKER_COMPOSE_FILE" exec "$service" bash -c "$cmd_mason"
+        $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$service" bash -c "$cmd_mason"
 
         echo "... reloading $service"
         "$BREEDBASE" reload "$service"
