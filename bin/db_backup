@@ -95,6 +95,13 @@ shift "$((OPTIND-1))"
 ## BACKUP
 ####
 
+# Check if PG_DUMP exists
+if [ -z "$PG_DUMP" ]; then
+    echo "ERROR: pg_dump command not found"
+    echo "It can likely be installed with the postgresql-client package"
+    echo "Try 'apt-get/yum install postgresql-client'"
+    exit 1
+fi
 
 # Check required parameters
 if [ -z "$DATABASE" ]; then

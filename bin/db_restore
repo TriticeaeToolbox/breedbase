@@ -81,9 +81,16 @@ shift "$((OPTIND-1))"
 
 
 ####
-## BACKUP
+## RESTORE
 ####
 
+# Check if PG_RESTORE exists
+if [ -z "$PG_RESTORE" ]; then
+    echo "ERROR: pg_restore command not found"
+    echo "It can likely be installed with the postgresql-client package"
+    echo "Try 'apt-get/yum install postgresql-client'"
+    exit 1
+fi
 
 # Check required parameters
 if [ -z "$DATABASE" ]; then
