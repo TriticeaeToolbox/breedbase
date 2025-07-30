@@ -54,7 +54,7 @@ obo_n=$(cat "$OBO_FILE" | grep ^default-namespace: | tr -s ' ' | cut -d ' ' -f 2
 echo "==> Updating the Trait Ontology..."
 
 CONTAINER_OBO_FILE="/.trait-ontology-file.obo"
-$DOCKER_COMPOSE cp "$OBO_FILE" $SERVICE:"$CONTAINER_OBO_FILE"
+$DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" cp "$OBO_FILE" $SERVICE:"$CONTAINER_OBO_FILE"
 
 cmd="cd  /home/production/cxgn/chado_tools/chado/bin;
 perl ./gmod_load_cvterms.pl -H breedbase_db -D $db -d Pg -r postgres -p \"$BB_POSTGRES_PASS\" -s $obo_s -n $obo_n -uv \"$CONTAINER_OBO_FILE\";
@@ -67,7 +67,7 @@ $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" exec "$SERVICE" bash -c "rm \"$CONTAIN
 if [ ! -z "$PROPS_FILE" ] && [ -f "$PROPS_FILE" ]; then
     echo "==> Updating Trait Props..."
     CONTAINER_PROPS_FILE="/.trait-props-file.xlsx"
-    $DOCKER_COMPOSE cp "$PROPS_FILE" $SERVICE:"$CONTAINER_PROPS_FILE"
+    $DOCKER_COMPOSE -f "$DOCKER_COMPOSE_FILE" cp "$PROPS_FILE" $SERVICE:"$CONTAINER_PROPS_FILE"
 
     cmd="cd /home/production/cxgn/sgn/bin;
 perl ./load_trait_props.pl -H breedbase_db -D $db -o $obo_s -I \"$CONTAINER_PROPS_FILE\" -w"
