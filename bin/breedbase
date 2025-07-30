@@ -76,6 +76,10 @@ USAGE=$(cat <<-END
     patch <triticum|avena|hordeum|...> [patch]      Run the specified DB patch (or all patches) on the database of the specified service 
     pull [triticum|avena|hordeum|...]               Pull the latest code from the sgn and mason repos (for the specified service)
     psql [triticum|avena|hordeum|...]               Start a postgres interactive terminal, optionally connect to the database of the specified service
+    update-traits <triticum|avena|hordeum|...> <obo file> [trait props file]
+                                                    Update the trait ontology on the specified service
+                                                        obo file: required path to trait ontology .obo file
+                                                        trait props file: optional path to additional trait props .xlsx file
 END
 )
 
@@ -325,6 +329,9 @@ case "$1" in
         ;;
     "psql")
         utils psql $args
+        ;;
+    "update-traits")
+        utils update-traits $args
         ;;
     *)
         echo "$USAGE"
